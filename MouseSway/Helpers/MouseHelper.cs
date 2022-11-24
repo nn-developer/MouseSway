@@ -1,7 +1,9 @@
-﻿using System;
+﻿using PInvoke;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -28,12 +30,26 @@ namespace MouseSway.Helpers
         /// <summary>
         /// マウスカーソルを移動
         /// </summary>
-        /// <param name="p"></param>
         public void Move(Point p)
         {
-            Cursor.Position = new Point(
-                Cursor.Position.X + p.X,
-                Cursor.Position.Y + p.Y);
+            var inp = new User32.INPUT
+            {
+                type = User32.InputType.INPUT_MOUSE,
+                Inputs = new User32.INPUT.InputUnion
+                {
+                    mi = new User32.MOUSEINPUT
+                    {
+                        dx = p.X,
+                        dy = p.Y,
+                        mouseData = 0,
+                        dwFlags = User32.MOUSEEVENTF.MOUSEEVENTF_MOVE,
+                        time = 0,
+                        dwExtraInfo_IntPtr = IntPtr.Zero,
+                    },
+                },
+            };
+
+            User32.SendInput(nInputs: 1, pInputs: new[] { inp, }, cbSize: Marshal.SizeOf<User32.INPUT>());
         }
     }
 }
