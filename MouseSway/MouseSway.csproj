@@ -21,4 +21,10 @@
     <Resource Include="Icons\MouseSway.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="MouseSway.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

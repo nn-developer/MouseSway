@@ -1,6 +1,7 @@
 ﻿using MouseSway.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
@@ -23,7 +24,7 @@ namespace MouseSway
         /// <summary>
         /// マウスの移動ポイント
         /// </summary>
-        private static readonly int MOVE_POINT = 1;
+        private static readonly int MOVE_POINT = 0;
 
         /// <summary>
         /// MouseSway開始処理
@@ -52,6 +53,9 @@ namespace MouseSway
         {
             // 画面終了時にアプリケーションが終了しないよう設定
             Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+            var mouseSwaySettings = (NameValueCollection)ConfigurationManager.GetSection("mouseSwaySettings");
+            var movePoint = mouseSwaySettings["movePoint"]?.FirstOrDefault();
 
             // アイコンを取得
             var iconStream = GetResourceStream(new Uri("./Icons/MouseSway.ico", UriKind.Relative)).Stream;
