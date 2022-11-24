@@ -22,9 +22,29 @@ namespace MouseSway
     public partial class App : Application
     {
         /// <summary>
-        /// マウスの移動ポイント
+        /// 開始処理の設定キー
         /// </summary>
-        private static readonly int MOVE_POINT = 0;
+        private static readonly string SWAY_ON_START_KEY = "swayOnStart";
+
+        /// <summary>
+        /// 移動値の設定キー
+        /// </summary>
+        private static readonly string MOVE_POINT_KEY = "movePoint";
+
+        /// <summary>
+        /// MouseSway開始メニュー名
+        /// </summary>
+        private static readonly string START_SWAY_MOUSE_MENU_NAME = "SwayOn";
+
+        /// <summary>
+        /// MouseSway停止メニュー名
+        /// </summary>
+        private static readonly string STOP_SWAY_MOUSE_MENU_NAME = "SwayOff";
+
+        /// <summary>
+        /// 終了メニュー名
+        /// </summary>
+        private static readonly string EXIT_MENU_NAME = "Exit";
 
         /// <summary>
         /// MouseSway開始処理
@@ -47,15 +67,17 @@ namespace MouseSway
         private List<IDisposable> _Disposables = new List<IDisposable>();
 
         /// <summary>
+        /// MouseSway設定値
+        /// </summary>
+        private NameValueCollection _MouseSwaySettings = (NameValueCollection)ConfigurationManager.GetSection("mouseSwaySettings");
+
+        /// <summary>
         /// アプリケーション開始
         /// </summary>
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             // 画面終了時にアプリケーションが終了しないよう設定
             Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-
-            var mouseSwaySettings = (NameValueCollection)ConfigurationManager.GetSection("mouseSwaySettings");
-            var movePoint = mouseSwaySettings["movePoint"]?.FirstOrDefault();
 
             // アイコンを取得
             var iconStream = GetResourceStream(new Uri("./Icons/MouseSway.ico", UriKind.Relative)).Stream;
@@ -74,8 +96,18 @@ namespace MouseSway
             // // タスクトレイ常駐のアイコンを非表示処理を設定
             this._HideNotifyIconAction = () => notifyIcon.Visible = false;
 
-            // MouseSway停止を実行
-            this._StopSwayMouseAction?.Invoke();
+            // 設定値から初期処理を判定して実行
+            var swayOnStartStr = this._MouseSwaySettings[SWAY_ON_START_KEY];
+            if (bool.TryParse(swayOnStartStr, out var swayOnStart) && swayOnStart)
+            {
+                // MouseSway開始を実行
+                this._StartSwayMouseAction?.Invoke();
+            }
+            else
+            {
+                // MouseSway停止を実行
+                this._StopSwayMouseAction?.Invoke();
+            }
 
             // タスクトレイアイコンのマウスクリックイベントを定義
             notifyIcon.MouseClick += (sender, e) =>
@@ -108,7 +140,7 @@ namespace MouseSway
                 timer.Start();
             });
             result.Items.Add(
-                "SwayOn",
+                START_SWAY_MOUSE_MENU_NAME,
                 null,
                 (sender, e) => this._StartSwayMouseAction?.Invoke());
             swayOnMenuItemIndex = result.Items.Count - 1;
@@ -121,7 +153,7 @@ namespace MouseSway
                 timer.Stop();
             });
             result.Items.Add(
-                "SwayOff",
+                STOP_SWAY_MOUSE_MENU_NAME,
                 null,
                 (sender, e) => this._StopSwayMouseAction?.Invoke());
             swayOffMenuItemIndex = result.Items.Count - 1;
@@ -131,7 +163,7 @@ namespace MouseSway
 
             // 常駐終了
             result.Items.Add(
-                "Exit",
+                EXIT_MENU_NAME,
                 null,
                 (sender, e) =>
                 {
@@ -162,7 +194,12 @@ namespace MouseSway
             result.Elapsed += (sender, e) =>
             {
                 // 移動値を取得
-                var pointValue = isMovePositive ? MOVE_POINT : MOVE_POINT * - 1;
+                var movePointStr = this._MouseSwaySettings[MOVE_POINT_KEY];
+                if (!int.TryParse(movePointStr, out var movePoint))
+                    movePoint = default;
+
+                // 正方向と負方向を交互に移動
+                var pointValue = isMovePositive ? movePoint : movePoint * - 1;
                 isMovePositive = !isMovePositive;
 
                 // マウス移動
