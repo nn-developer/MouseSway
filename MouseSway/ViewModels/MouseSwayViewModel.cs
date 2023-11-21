@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MouseSway.ViewModels
 {
-    internal class MouseSwayViewModel
+    public class MouseSwayViewModel
     {
     }
 }

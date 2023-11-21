@@ -1,5 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<mouseSwaySettings>
-	<add key="movePoint" value="1"/>
-	<add key="swayOnStart" value="false"/>
-</mouseSwaySettings>
+<appSettings>
+	<add key="movePoint" value="0"/>
+	<add key="swayOnStart" value="true"/>
+	<add key="setPauseTimer" value="true"/>
+	<add key="monitorIntervalSeconds" value="1"/>
+	<add key="pauseStartTime" value="13:00"/>
+	<add key="pauseMinutes" value="45"/>
+	<add key="randomPauseStartSeconds" value="300"/>
+	<add key="randomPauseEndSeconds" value="150"/>
+	<add key="isEnabledLog" value="true"/>
+</appSettings>
